@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduQuiz Pro - Enhanced Quiz Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --info: #7209b7;
+            --background: #ffffff;
+            --text-dark: #333333;
+            --text-light: #f5f5f5;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --border: 1px solid #e0e0e0;
+            --transition: all 0.3s ease;
+            --section-padding: 30px;
+            --card-radius: 12px;
+        }
+
+        .dark-mode {
+            --background: #121212;
+            --text-dark: #f5f5f5;
+            --card-bg: #1e1e1e;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --border: 1px solid #333;
+            --text-light: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background-color: var(--background);
+            color: var(--text-dark);
+            padding: 0;
+            line-height: 1.6;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background-color 0.5s, box-shadow 0.5s;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            color: var(--accent);
+            transition: transform 0.5s ease;
+        }
+
+        .logo:hover i {
+            transform: rotate(360deg);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 15px;
+        }
+
+        nav a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 30px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after, nav a.active::after {
+            width: 100%;
+        }
+
+        nav a:hover, nav a.active {
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.05);
+            transform: rotate(15deg);
+        }
+
+        .main-content {
+            min-height: calc(100vh - 200px);
+            padding: var(--section-padding) 0;
+        }
+
+        .app-title {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .app-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent);
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.8;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-type-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-type-btn {
+            background: var(--card-bg);
+            border: var(--border);
+            color: var(--text-dark);
+            padding: 15px 30px;
+            border-radius: var(--card-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            text-align: center;
+            min-width: 200px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .user-type-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: rgba(67, 97, 238, 0.1);
+            transition: height 0.3s ease;
+            z-index: -1;
+        }
+
+        .user-type-btn:hover::before, .user-type-btn.active::before {
+            height: 100%;
+        }
+
+        .user-type-btn:hover, .user-type-btn.active {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-type-btn i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .user-type-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            max-width: 500px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 5px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-dark);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            transform: translateX(5px);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        .search-box button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box button:hover {
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .subject-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            border: var(--border);
+            transform: translateY(0);
+            animation: float 3s ease-in-out infinite;
+            animation-delay: calc(0.1s * var(--delay));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subject-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .subject-image {
+            width: 100%;
+            height: 150px;
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .subject-card:hover .subject-image {
+            transform: scale(1.05);
+        }
+
+        .subject-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            transition: color 0.3s ease;
+        }
+
+        .question-count {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            color: var(--text-dark);
+        }
+
+        .quiz-container {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: var(--border);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .quiz-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .quiz-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .timer {
+            background: rgba(247, 37, 133, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--warning);
+            transition: all 0.3s ease;
+        }
+
+        .timer.warning {
+            background: rgba(247, 37, 133, 0.2);
+            transform: scale(1.05);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .options-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .option {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: transparent;
+            transition: width 0.3s ease;
+        }
+
+        .option:hover {
+            background: rgba(67, 97, 238, 0.05);
+            transform: translateX(5px);
+        }
+
+        .option:hover::before {
+            background: var(--primary);
+            width: 8px;
+        }
+
+        .option.selected {
+            background: rgba(76, 201, 240, 0.1);
+            border-color: var(--success);
+            transform: translateX(10px);
+        }
+
+        .option.selected::before {
+            background: var(--success);
+            width: 8px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: width 0.5s ease;
+            z-index: -1;
+        }
+
+        .nav-btn:hover::before {
+            width: 100%;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-container {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: var(--border);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .results-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .results-header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent);
+            margin: 20px auto;
+            border-radius: 2px;
+        }
+
+        .results-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 20px;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            text-align: center;
+            border: var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            color: var(--text-dark);
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            height: 300px;
+            margin-bottom: 30px;
+            border: var(--border);
+        }
+
+        .review-container {
+            margin-top: 30px;
+        }
+
+        .review-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: var(--border);
+            color: var(--text-dark);
+        }
+
+        .review-item {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .review-item:hover {
+            transform: translateX(5px);
+        }
+
+        .question-review {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .answer-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .user-answer {
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .user-answer:hover {
+            transform: translateX(5px);
+        }
+
+        .user-answer.correct {
+            background: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success);
+        }
+
+        .user-answer.incorrect {
+            background: rgba(247, 37, 133, 0.1);
+            border-left: 4px solid var(--warning);
+        }
+
+        .correct-answer {
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(67, 97, 238, 0.1);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .correct-answer:hover {
+            transform: translateX(5px);
+        }
+
+        .feedback-container {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: var(--border);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .feedback-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .feedback-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+
+        .feedback-form {
+            display: grid;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-group input, 
+        .form-group textarea,
+        .form-group select {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: rgba(0, 0, 0, 0.03);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: width 0.5s ease;
+            z-index: -1;
+        }
+
+        .submit-btn:hover::before {
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .page-content {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .page-content:hover {
+            transform: translateY(-5px);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            margin: 10px 0;
+            border-radius: 2px;
+        }
+
+        .page-description {
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: var(--text-dark);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: var(--card-radius);
+            padding: 25px;
+            text-align: center;
+            border: var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            transition: transform 0.5s ease;
+        }
+
+        .feature-card:hover i {
+            transform: rotate(360deg);
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .feature-description {
+            color: var(--text-dark);
+            opacity: 0.8;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .leaderboard-table th, 
+        .leaderboard-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            color: var(--text-dark);
+            transition: background 0.3s ease;
+        }
+
+        .leaderboard-table th {
+            background: rgba(0, 0, 0, 0.03);
+            font-weight: 600;
+        }
+
+        .leaderboard-table tr:hover {
+            background: rgba(0, 0, 0, 0.03);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-table tr {
+            transition: transform 0.3s ease;
+        }
+
+        .leaderboard-table .rank {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .contact-card {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: var(--card-radius);
+            padding: 25px;
+            text-align: center;
+            border: var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .contact-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            transition: transform 0.5s ease;
+        }
+
+        .contact-card:hover i {
+            transform: scale(1.2);
+        }
+
+        .contact-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .contact-detail {
+            color: var(--text-dark);
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        footer {
+            background: var(--card-bg);
+            padding: 30px 0;
+            border-top: var(--border);
+            margin-top: 50px;
+            transition: background-color 0.5s;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .footer-links li:hover {
+            transform: translateX(5px);
+        }
+
+        .footer-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: var(--border);
+            color: var(--text-dark);
+            opacity: 0.7;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .question-counter {
+            text-align: right;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(67, 97, 238, 0.1);
+            border-radius: 50%;
+            border-top: 5px solid var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quiz-loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .pulse-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pulse-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: inline-block;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .pulse-dots span:nth-child(1) { animation-delay: 0s; }
+        .pulse-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .pulse-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .app-title {
+                font-size: 2rem;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .user-type-btn {
+                min-width: 150px;
+                padding: 12px 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>EduQuiz Pro</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-section="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-section="about">About</a></li>
+                    <li><a href="#" class="nav-link" data-section="subjects">Subjects</a></li>
+                    <li><a href="#" class="nav-link" data-section="leaderboard">Leaderboard</a></li>
+                    <li><a href="#" class="nav-link" data-section="contact">Contact</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <h1 class="app-title">Advanced Quiz Platform</h1>
+            <p class="subtitle">Test your knowledge with our intelligent assessment system</p>
+            
+            <div class="user-type-selector">
+                <div class="user-type-btn active" data-user-type="school">
+                    <i class="fas fa-school"></i>
+                    School Student
+                </div>
+                <div class="user-type-btn" data-user-type="college">
+                    <i class="fas fa-graduation-cap"></i>
+                    College Student
+                </div>
+                <div class="user-type-btn" data-user-type="faculty">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Faculty
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search for subjects...">
+                    <button id="search-btn"><i class="fas fa-search"></i> Search</button>
+                </div>
+            </div>
+            
+            <div id="subjects-container">
+                <!-- School subjects by default -->
+                <div class="subjects-grid" id="school-subjects">
+                    <div class="subject-card" data-subject="social" style="--delay: 0">
+                        <div class="subject-image">
+                            <i class="fas fa-globe-americas"></i>
+                        </div>
+                        <div class="subject-name">Social Studies</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="biology" style="--delay: 1">
+                        <div class="subject-image">
+                            <i class="fas fa-dna"></i>
+                        </div>
+                        <div class="subject-name">Biology</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="maths" style="--delay: 2">
+                        <div class="subject-image">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="subject-name">Mathematics</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="chemistry" style="--delay: 3">
+                        <div class="subject-image">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="subject-name">Chemistry</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="physics" style="--delay: 4">
+                        <div class="subject-image">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <div class="subject-name">Physics</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="english" style="--delay: 5">
+                        <div class="subject-image">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="subject-name">English</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="history" style="--delay: 6">
+                        <div class="subject-image">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                        <div class="subject-name">History</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="geology" style="--delay: 7">
+                        <div class="subject-image">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <div class="subject-name">Geology</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="computer" style="--delay: 8">
+                        <div class="subject-image">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="subject-name">Computer Science</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="geography" style="--delay: 9">
+                        <div class="subject-image">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div class="subject-name">Geography</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                </div>
+                
+                <!-- College subjects (hidden by default) -->
+                <div class="subjects-grid hidden" id="college-subjects">
+                    <div class="subject-card" data-subject="advanced-maths" style="--delay: 0">
+                        <div class="subject-image">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="subject-name">Advanced Maths</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="english-lit" style="--delay: 1">
+                        <div class="subject-image">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="subject-name">English Literature</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="python" style="--delay: 2">
+                        <div class="subject-image">
+                            <i class="fab fa-python"></i>
+                        </div>
+                        <div class="subject-name">Python Programming</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="java" style="--delay: 3">
+                        <div class="subject-image">
+                            <i class="fab fa-java"></i>
+                        </div>
+                        <div class="subject-name">Java Programming</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="dsa" style="--delay: 4">
+                        <div class="subject-image">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <div class="subject-name">Data Structures</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                </div>
+                
+                <!-- Faculty subjects (hidden by default) -->
+                <div class="subjects-grid hidden" id="faculty-subjects">
+                    <div class="subject-card" data-subject="education-theory" style="--delay: 0">
+                        <div class="subject-image">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="subject-name">Education Theory</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="pedagogy" style="--delay: 1">
+                        <div class="subject-image">
+                            <i class="fas fa-chalkboard"></i>
+                        </div>
+                        <div class="subject-name">Pedagogy</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="curriculum-dev" style="--delay: 2">
+                        <div class="subject-image">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="subject-name">Curriculum Development</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="assessment" style="--delay: 3">
+                        <div class="subject-image">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="subject-name">Assessment Strategies</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="ed-tech" style="--delay: 4">
+                        <div class="subject-image">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <div class="subject-name">Educational Technology</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                    <div class="subject-card" data-subject="leadership" style="--delay: 5">
+                        <div class="subject-image">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="subject-name">Academic Leadership</div>
+                        <div class="question-count">10 Questions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quiz Loading -->
+            <div class="quiz-loading" id="quiz-loading">
+                <div class="pulse-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="loading-text">Preparing your quiz...</div>
+            </div>
+            
+            <div class="quiz-container" id="quiz-container">
+                <div class="quiz-header">
+                    <div class="quiz-title" id="quiz-title">Mathematics Quiz</div>
+                    <div class="timer" id="timer">
+                        <i class="fas fa-clock"></i>
+                        <span id="time-left">10:00</span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 10%"></div>
+                </div>
+                <div class="question-counter" id="question-counter">Question 1 of 10</div>
+                
+                <div class="question-container">
+                    <div class="question-text" id="question-text">
+                        What is the value of π (pi) approximately equal to?
+                    </div>
+                    
+                    <div class="options-container" id="options-container">
+                        <div class="option" data-option="1">3.14</div>
+                        <div class="option" data-option="2">2.71</div>
+                        <div class="option" data-option="3">1.61</div>
+                        <div class="option" data-option="4">4.67</div>
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button class="nav-btn" id="prev-btn" disabled>
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="nav-btn" id="next-btn">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="nav-btn" id="submit-btn">
+                        Submit Quiz <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="results-container" id="results-container">
+                <div class="results-header">
+                    <h2 class="results-title">Quiz Results</h2>
+                    <div class="score-display" id="score-display">8/10</div>
+                    <div class="percentage" id="percentage">80%</div>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value" id="correct-answers">8</div>
+                        <div class="stat-label">Correct Answers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="incorrect-answers">2</div>
+                        <div class="stat-label">Incorrect Answers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="unanswered">0</div>
+                        <div class="stat-label">Unanswered</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="time-taken">08:45</div>
+                        <div class="stat-label">Time Taken</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="results-chart"></canvas>
+                </div>
+                
+                <div class="review-container">
+                    <h3 class="review-title">Review Your Answers</h3>
+                    <div id="review-questions">
+                        <!-- Review questions will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button class="nav-btn" id="retake-btn">
+                        <i class="fas fa-redo"></i> Retake Quiz
+                    </button>
+                    <button class="nav-btn" id="new-quiz-btn">
+                        New Quiz <i class="fas fa-plus-circle"></i>
+                    </button>
+                    <button class="nav-btn" id="feedback-btn">
+                        Provide Feedback <i class="fas fa-comment"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="feedback-container" id="feedback-container">
+                <h2 class="feedback-title">Feedback Form</h2>
+                <form class="feedback-form" id="feedback-form">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" value="Mathematics" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rating">How would you rate this quiz?</label>
+                        <select id="rating">
+                            <option value="">Select a rating</option>
+                            <option value="5">Excellent</option>
+                            <option value="4">Very Good</option>
+                            <option value="3">Good</option>
+                            <option value="2">Fair</option>
+                            <option value="1">Poor</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comments">Comments/Suggestions</label>
+                        <textarea id="comments" placeholder="Share your feedback about the quiz experience"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Submit Feedback</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="page-content">
+                <h2 class="page-title">About EduQuiz Pro</h2>
+                <p class="page-description">
+                    EduQuiz Pro is an innovative quiz platform designed to help students and educators 
+                    assess knowledge across various subjects. Our mission is to make learning engaging 
+                    and effective through interactive quizzes that provide instant feedback and detailed 
+                    performance analysis.
+                </p>
+                <p class="page-description">
+                    Founded in 2025 by a team of passionate educators and developers, EduQuiz Pro 
+                    has helped over 50,000 students improve their knowledge and test-taking skills. 
+                    Our platform is constantly evolving to provide the best learning experience.
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3 class="feature-title">For Students</h3>
+                        <p class="feature-description">
+                            Test your knowledge, identify strengths and weaknesses, and track your progress over time.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h3 class="feature-title">For Educators</h3>
+                        <p class="feature-description">
+                            Create custom quizzes, monitor student performance, and identify areas that need more focus.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3 class="feature-title">Performance Analytics</h3>
+                        <p class="feature-description">
+                            Detailed analytics and visual reports help you understand performance patterns.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-clock"></i>
+                        <h3 class="feature-title">Timed Assessments</h3>
+                        <p class="feature-description">
+                            Simulate exam conditions with our timed quiz feature to improve time management skills.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3 class="feature-title">Mobile Friendly</h3>
+                        <p class="feature-description">
+                            Access quizzes anytime, anywhere with our fully responsive design.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-award"></i>
+                        <h3 class="feature-title">Achievements</h3>
+                        <p class="feature-description">
+                            Earn badges and certificates for your accomplishments.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Subjects Section -->
+        <section id="subjects" class="section">
+            <div class="page-content">
+                <h2 class="page-title">Available Subjects</h2>
+                <p class="page-description">
+                    Explore our wide range of subjects tailored for different educational levels. 
+                    Each subject contains carefully crafted quizzes to test your knowledge and 
+                    help you improve.
+                </p>
+                
+                <h3>School Subjects</h3>
+                <div class="subjects-grid">
+                    <div class="subject-card" style="--delay: 0">
+                        <div class="subject-image">
+                            <i class="fas fa-globe-americas"></i>
+                        </div>
+                        <div class="subject-name">Social Studies</div>
+                        <div class="question-count">10 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 1">
+                        <div class="subject-image">
+                            <i class="fas fa-dna"></i>
+                        </div>
+                        <div class="subject-name">Biology</div>
+                        <div class="question-count">8 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 2">
+                        <div class="subject-image">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="subject-name">Mathematics</div>
+                        <div class="question-count">15 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 3">
+                        <div class="subject-image">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="subject-name">Chemistry</div>
+                        <div class="question-count">12 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 4">
+                        <div class="subject-image">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <div class="subject-name">Physics</div>
+                        <div class="question-count">10 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 5">
+                        <div class="subject-image">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="subject-name">English</div>
+                        <div class="question-count">10 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 6">
+                        <div class="subject-image">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                        <div class="subject-name">History</div>
+                        <div class="question-count">8 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 7">
+                        <div class="subject-image">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <div class="subject-name">Geology</div>
+                        <div class="question-count">7 Quizzes</div>
+                    </div>
+                </div>
+                
+                <h3>College Subjects</h3>
+                <div class="subjects-grid">
+                    <div class="subject-card" style="--delay: 0">
+                        <div class="subject-image">
+                            <i class="fab fa-python"></i>
+                        </div>
+                        <div class="subject-name">Python Programming</div>
+                        <div class="question-count">20 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 1">
+                        <div class="subject-image">
+                            <i class="fab fa-java"></i>
+                        </div>
+                        <div class="subject-name">Java Programming</div>
+                        <div class="question-count">18 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 2">
+                        <div class="subject-image">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <div class="subject-name">Data Structures</div>
+                        <div class="question-count">22 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 3">
+                        <div class="subject-image">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="subject-name">Database Systems</div>
+                        <div class="question-count">15 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 4">
+                        <div class="subject-image">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div class="subject-name">Computer Networks</div>
+                        <div class="question-count">12 Quizzes</div>
+                    </div>
+                    <div class="subject-card" style="--delay: 5">
+                        <div class="subject-image">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="subject-name">Artificial Intelligence</div>
+                        <div class="question-count">18 Quizzes</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leaderboard Section -->
+        <section id="leaderboard" class="section">
+            <div class="page-content">
+                <h2 class="page-title">Top Performers</h2>
+                <p class="page-description">
+                    Our leaderboard showcases the top performers across different subjects and categories. 
+                    Take a quiz and see if you can make it to the top!
+                </p>
+                
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="leaderboard-search" placeholder="Search by subject or name...">
+                        <button id="leaderboard-search-btn"><i class="fas fa-search"></i> Search</button>
+                    </div>
+                </div>
+                
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Subject</th>
+                            <th>Score</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr>
+                            <td class="rank">1</td>
+                            <td>Alex Johnson</td>
+                            <td>Mathematics</td>
+                            <td>98%</td>
+                            <td>08:12</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">2</td>
+                            <td>Sarah Williams</td>
+                            <td>Python Programming</td>
+                            <td>96%</td>
+                            <td>09:05</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">3</td>
+                            <td>Michael Chen</td>
+                            <td>Data Structures</td>
+                            <td>95%</td>
+                            <td>07:58</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Emily Davis</td>
+                            <td>Chemistry</td>
+                            <td>94%</td>
+                            <td>08:45</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>David Martinez</td>
+                            <td>English Literature</td>
+                            <td>93%</td>
+                            <td>09:20</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Jessica Brown</td>
+                            <td>Biology</td>
+                            <td>92%</td>
+                            <td>08:33</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Ryan Taylor</td>
+                            <td>Physics</td>
+                            <td>91%</td>
+                            <td>09:10</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>Olivia Wilson</td>
+                            <td>Social Studies</td>
+                            <td>90%</td>
+                            <td>08:55</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>James Anderson</td>
+                            <td>Java Programming</td>
+                            <td>89%</td>
+                            <td>09:15</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>Sophia Garcia</td>
+                            <td>Geology</td>
+                            <td>88%</td>
+                            <td>08:40</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section">
+            <div class="page-content">
+                <h2 class="page-title">Contact Us</h2>
+                <p class="page-description">
+                    Have questions or feedback? We'd love to hear from you! Reach out to us using 
+                    the information below or fill out the contact form.
+                </p>
+                
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3 class="contact-title">Email Us</h3>
+                        <p class="contact-detail">support@eduquizpro.com</p>
+                        <p class="contact-detail">info@eduquizpro.com</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <h3 class="contact-title">Call Us</h3>
+                        <p class="contact-detail">+1 (555) 123-4567</p>
+                        <p class="contact-detail">+1 (555) 987-6543</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3 class="contact-title">Visit Us</h3>
+                        <p class="contact-detail">123 Education Street</p>
+                        <p class="contact-detail">Learning City, LC 12345</p>
+                    </div>
+                </div>
+                
+                <div class="feedback-form" style="margin-top: 40px;">
+                    <div class="form-group">
+                        <label for="contact-name">Your Name</label>
+                        <input type="text" id="contact-name" placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-email">Email Address</label>
+                        <input type="email" id="contact-email" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-subject">Subject</label>
+                        <input type="text" id="contact-subject" placeholder="Subject of your message">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-message">Message</label>
+                        <textarea id="contact-message" placeholder="Enter your message" min-height="150"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3 class="footer-title">EduQuiz Pro</h3>
+                <p>The intelligent quiz platform for students and educators. Test your knowledge, track your progress, and excel in your studies.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3 class="footer-title">Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#" class="nav-link" data-section="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-section="about">About</a></li>
+                    <li><a href="#" class="nav-link" data-section="subjects">Subjects</a></li>
+                    <li><a href="#" class="nav-link" data-section="leaderboard">Leaderboard</a></li>
+                    <li><a href="#" class="nav-link" data-section="contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3 class="footer-title">Connect With Us</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                    <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i> YouTube</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="container copyright">
+            <p>&copy; 2025 EduQuiz Pro. All rights reserved. Created for CodeSpark - 72 Hour Build Challenge</p>
+            <p>Designed with ❤️ by Vibe Engineers</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const userTypeBtns = document.querySelectorAll('.user-type-btn');
+        const subjectsContainer = document.getElementById('subjects-container');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const quizLoading = document.getElementById('quiz-loading');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const quizTitle = document.getElementById('quiz-title');
+        const timeLeft = document.getElementById('time-left');
+        const timerEl = document.getElementById('timer');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const percentage = document.getElementById('percentage');
+        const correctAnswers = document.getElementById('correct-answers');
+        const incorrectAnswers = document.getElementById('incorrect-answers');
+        const unanswered = document.getElementById('unanswered');
+        const timeTaken = document.getElementById('time-taken');
+        const reviewQuestions = document.getElementById('review-questions');
+        const retakeBtn = document.getElementById('retake-btn');
+        const newQuizBtn = document.getElementById('new-quiz-btn');
+        const feedbackBtn = document.getElementById('feedback-btn');
+        const feedbackForm = document.getElementById('feedback-form');
+        const themeToggle = document.getElementById('theme-toggle');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.section');
+        const progressFill = document.getElementById('progress-fill');
+        const questionCounter = document.getElementById('question-counter');
+        const leaderboardSearch = document.getElementById('leaderboard-search');
+        const leaderboardSearchBtn = document.getElementById('leaderboard-search-btn');
+        const leaderboardBody = document.getElementById('leaderboard-body');
+        
+        // Global Variables
+        let currentUserType = 'school';
+        let currentSubject = '';
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let timerInterval;
+        let timeRemaining = 600; // 10 minutes in seconds
+        let startTime;
+        let resultsChart = null;
+        let quizData = {};
+        
+        // Questions database with more subjects and questions
+        const questionsDB = {
+            // School subjects
+            "social": generateSubjectQuestions("Social Studies", 10),
+            "biology": generateSubjectQuestions("Biology", 10),
+            "maths": generateSubjectQuestions("Mathematics", 10),
+            "chemistry": generateSubjectQuestions("Chemistry", 10),
+            "physics": generateSubjectQuestions("Physics", 10),
+            "english": generateSubjectQuestions("English", 10),
+            "history": generateSubjectQuestions("History", 10),
+            "geology": generateSubjectQuestions("Geology", 10),
+            "computer": generateSubjectQuestions("Computer Science", 10),
+            "geography": generateSubjectQuestions("Geography", 10),
+            
+            // College subjects
+            "advanced-maths": generateSubjectQuestions("Advanced Maths", 10),
+            "english-lit": generateSubjectQuestions("English Literature", 10),
+            "python": generateSubjectQuestions("Python Programming", 10),
+            "java": generateSubjectQuestions("Java Programming", 10),
+            "dsa": generateSubjectQuestions("Data Structures", 10),
+            
+            // Faculty subjects
+            "education-theory": generateSubjectQuestions("Education Theory", 10),
+            "pedagogy": generateSubjectQuestions("Pedagogy", 10),
+            "curriculum-dev": generateSubjectQuestions("Curriculum Development", 10),
+            "assessment": generateSubjectQuestions("Assessment Strategies", 10),
+            "ed-tech": generateSubjectQuestions("Educational Technology", 10),
+            "leadership": generateSubjectQuestions("Academic Leadership", 10)
+        };
+        
+        // Generate sample questions for a subject
+        function generateSubjectQuestions(subjectName, count) {
+            const questions = [];
+            for (let i = 1; i <= count; i++) {
+                questions.push({
+                    question: `${subjectName} Question ${i}`,
+                    options: [
+                        `Option A for Q${i}`,
+                        `Option B for Q${i}`,
+                        `Option C for Q${i}`,
+                        `Option D for Q${i}`
+                    ],
+                    answer: Math.floor(Math.random() * 4) + 1
+                });
+            }
+            return questions;
+        }
+        
+        // Initialize the app
+        function initApp() {
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Set home as active
+            setActiveSection('home');
+        }
+        
+        // Set active section
+        function setActiveSection(sectionId) {
+            // Hide all sections
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update active nav link
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.section === sectionId) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sectionId = link.dataset.section;
+                    setActiveSection(sectionId);
+                });
+            });
+            
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+            
+            // User type selection
+            userTypeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    userTypeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const newUserType = btn.dataset.userType;
+                    
+                    // If same user type, do nothing
+                    if (currentUserType === newUserType) return;
+                    
+                    const currentGrid = document.getElementById(`${currentUserType}-subjects`);
+                    const newGrid = document.getElementById(`${newUserType}-subjects`);
+                    
+                    // Fade out current grid
+                    currentGrid.classList.add('fade-out');
+                    setTimeout(() => {
+                        currentGrid.classList.add('hidden');
+                        currentGrid.classList.remove('fade-out');
+                        
+                        // Fade in new grid
+                        newGrid.classList.remove('hidden');
+                        newGrid.classList.add('fade-in');
+                        setTimeout(() => {
+                            newGrid.classList.remove('fade-in');
+                        }, 300);
+                    }, 300);
+                    
+                    currentUserType = newUserType;
+                });
+            });
+            
+            // Subject selection
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    currentSubject = card.dataset.subject;
+                    startQuiz();
+                });
+            });
+            
+            // Search functionality
+            searchBtn.addEventListener('click', handleSearch);
+            searchInput.addEventListener('keyup', e => {
+                if (e.key === 'Enter') handleSearch();
+            });
+            
+            // Leaderboard search
+            leaderboardSearchBtn.addEventListener('click', handleLeaderboardSearch);
+            leaderboardSearch.addEventListener('keyup', e => {
+                if (e.key === 'Enter') handleLeaderboardSearch();
+            });
+            
+            // Option selection
+            optionsContainer.addEventListener('click', e => {
+                if (e.target.classList.contains('option')) {
+                    const selectedOption = parseInt(e.target.dataset.option);
+                    selectOption(selectedOption);
+                }
+            });
+            
+            // Navigation buttons
+            prevBtn.addEventListener('click', showPreviousQuestion);
+            nextBtn.addEventListener('click', showNextQuestion);
+            submitBtn.addEventListener('click', submitQuiz);
+            
+            // Results buttons
+            retakeBtn.addEventListener('click', retakeQuiz);
+            newQuizBtn.addEventListener('click', newQuiz);
+            feedbackBtn.addEventListener('click', showFeedbackForm);
+            
+            // Feedback form
+            feedbackForm.addEventListener('submit', handleFeedbackSubmit);
+        }
+        
+        // Handle search
+        function handleSearch() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            if (!searchTerm) return;
+            
+            const subjectCards = document.querySelectorAll('.subject-card');
+            subjectCards.forEach(card => {
+                const subjectName = card.querySelector('.subject-name').textContent.toLowerCase();
+                if (subjectName.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    card.animate([
+                        { transform: 'scale(1)' },
+                        { transform: 'scale(1.05)' },
+                        { transform: 'scale(1)' }
+                    ], {
+                        duration: 500
+                    });
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Handle leaderboard search
+        function handleLeaderboardSearch() {
+            const searchTerm = leaderboardSearch.value.trim().toLowerCase();
+            const rows = leaderboardBody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[1].textContent.toLowerCase();
+                const subject = row.cells[2].textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || subject.includes(searchTerm)) {
+                    row.style.display = '';
+                    row.animate([
+                        { backgroundColor: 'transparent' },
+                        { backgroundColor: 'rgba(67, 97, 238, 0.1)' },
+                        { backgroundColor: 'transparent' }
+                    ], {
+                        duration: 1000
+                    });
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Start quiz
+        function startQuiz() {
+            // Hide subjects, show loading
+            document.getElementById(`${currentUserType}-subjects`).classList.add('hidden');
+            quizLoading.style.display = 'flex';
+            
+            // Simulate loading
+            setTimeout(() => {
+                quizLoading.style.display = 'none';
+                quizContainer.classList.add('active');
+                
+                // Set quiz title
+                const subjectName = document.querySelector(`.subject-card[data-subject="${currentSubject}"] .subject-name`).textContent;
+                quizTitle.textContent = `${subjectName} Quiz`;
+                
+                // Initialize quiz state
+                currentQuestion = 0;
+                userAnswers = Array(questionsDB[currentSubject].length).fill(0);
+                timeRemaining = 600;
+                startTime = new Date();
+                
+                // Start timer
+                startTimer();
+                
+                // Show first question
+                showQuestion(currentQuestion);
+            }, 1500);
+        }
+        
+        // Start timer
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+        
+        // Update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timeLeft.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running out
+            if (timeRemaining < 60) {
+                timerEl.classList.add('warning');
+            }
+        }
+        
+        // Show question
+        function showQuestion(index) {
+            const question = questionsDB[currentSubject][index];
+            questionText.textContent = question.question;
+            
+            // Clear options
+            optionsContainer.innerHTML = '';
+            
+            // Add options
+            question.options.forEach((option, i) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.dataset.option = i + 1;
+                optionEl.textContent = option;
+                
+                // Mark selected option if exists
+                if (userAnswers[index] === i + 1) {
+                    optionEl.classList.add('selected');
+                }
+                
+                optionsContainer.appendChild(optionEl);
+            });
+            
+            // Update navigation buttons
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === questionsDB[currentSubject].length - 1;
+            
+            // Update progress bar
+            const progress = ((index + 1) / questionsDB[currentSubject].length) * 100;
+            progressFill.style.width = `${progress}%`;
+            
+            // Update question counter
+            questionCounter.textContent = `Question ${index + 1} of ${questionsDB[currentSubject].length}`;
+        }
+        
+        // Select option
+        function selectOption(option) {
+            // Remove selection from all options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            event.target.classList.add('selected');
+            
+            // Save answer
+            userAnswers[currentQuestion] = option;
+        }
+        
+        // Show previous question
+        function showPreviousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+        
+        // Show next question
+        function showNextQuestion() {
+            if (currentQuestion < questionsDB[currentSubject].length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        }
+        
+        // Submit quiz
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            timerEl.classList.remove('warning');
+            
+            // Calculate time taken
+            const endTime = new Date();
+            const timeDiff = Math.floor((endTime - startTime) / 1000); // in seconds
+            const minutesTaken = Math.floor(timeDiff / 60);
+            const secondsTaken = timeDiff % 60;
+            timeTaken.textContent = `${minutesTaken.toString().padStart(2, '0')}:${secondsTaken.toString().padStart(2, '0')}`;
+            
+            // Calculate results
+            let correct = 0;
+            let incorrect = 0;
+            let unanswered = 0;
+            
+            userAnswers.forEach((answer, index) => {
+                if (answer === 0) {
+                    unanswered++;
+                } else if (answer === questionsDB[currentSubject][index].answer) {
+                    correct++;
+                } else {
+                    incorrect++;
+                }
+            });
+            
+            // Update results display
+            scoreDisplay.textContent = `${correct}/${questionsDB[currentSubject].length}`;
+            const scorePercentage = Math.round((correct / questionsDB[currentSubject].length) * 100);
+            percentage.textContent = `${scorePercentage}%`;
+            correctAnswers.textContent = correct;
+            incorrectAnswers.textContent = incorrect;
+            unanswered.textContent = unanswered;
+            
+            // Generate results chart
+            generateResultsChart(correct, incorrect, unanswered);
+            
+            // Generate review
+            generateReview();
+            
+            // Show results
+            quizContainer.classList.remove('active');
+            resultsContainer.classList.add('active');
+        }
+        
+        // Generate results chart
+        function generateResultsChart(correct, incorrect, unanswered) {
+            // Destroy existing chart if it exists
+            if (resultsChart) {
+                resultsChart.destroy();
+            }
+            
+            const ctx = document.getElementById('results-chart').getContext('2d');
+            resultsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct', 'Incorrect', 'Unanswered'],
+                    datasets: [{
+                        data: [correct, incorrect, unanswered],
+                        backgroundColor: [
+                            'rgba(76, 201, 240, 0.8)',
+                            'rgba(247, 37, 133, 0.8)',
+                            'rgba(150, 150, 150, 0.3)'
+                        ],
+                        borderColor: [
+                            'rgba(76, 201, 240, 1)',
+                            'rgba(247, 37, 133, 1)',
+                            'rgba(150, 150, 150, 0.5)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: document.body.classList.contains('dark-mode') ? '#f5f5f5' : '#333',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
+                    }
+                }
+            });
+        }
+        
+        // Generate review
+        function generateReview() {
+            reviewQuestions.innerHTML = '';
+            
+            questionsDB[currentSubject].forEach((question, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === question.answer;
+                const isUnanswered = userAnswer === 0;
+                
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'review-item';
+                
+                let answerStatus = '';
+                if (isUnanswered) {
+                    answerStatus = 'Not answered';
+                } else if (isCorrect) {
+                    answerStatus = 'Correct';
+                } else {
+                    answerStatus = 'Incorrect';
+                }
+                
+                reviewItem.innerHTML = `
+                    <div class="question-review">
+                        <strong>Question ${index + 1}:</strong> ${question.question}
+                        <div class="answer-status">${answerStatus}</div>
+                    </div>
+                    <div class="answer-container">
+                        ${!isUnanswered ? `
+                            <div class="user-answer ${isCorrect ? 'correct' : 'incorrect'}">
+                                <i class="fas ${isCorrect ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                                <span>Your answer: ${question.options[userAnswer - 1]}</span>
+                            </div>
+                        ` : `
+                            <div class="user-answer incorrect">
+                                <i class="fas fa-question-circle"></i>
+                                <span>You did not answer this question</span>
+                            </div>
+                        `}
+                        ${!isCorrect ? `
+                            <div class="correct-answer">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Correct answer: ${question.options[question.answer - 1]}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                reviewQuestions.appendChild(reviewItem);
+            });
+        }
+        
+        // Retake quiz
+        function retakeQuiz() {
+            resultsContainer.classList.remove('active');
+            startQuiz();
+        }
+        
+        // Start new quiz
+        function newQuiz() {
+            resultsContainer.classList.remove('active');
+            document.getElementById(`${currentUserType}-subjects`).classList.remove('hidden');
+            quizContainer.classList.remove('active');
+        }
+        
+        // Show feedback form
+        function showFeedbackForm() {
+            resultsContainer.classList.remove('active');
+            feedbackContainer.classList.add('active');
+            
+            // Set subject in form
+            document.getElementById('subject').value = document.querySelector(`.subject-card[data-subject="${currentSubject}"] .subject-name`).textContent;
+        }
+        
+        // Handle feedback submit
+        function handleFeedbackSubmit(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const rating = document.getElementById('rating').value;
+            const comments = document.getElementById('comments').value;
+            
+            // Simple validation
+            if (!name || !email || !rating) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // In a real app, this would be sent to a server
+            alert('Thank you for your feedback!');
+            
+            // Reset form and go back to subjects
+            feedbackForm.reset();
+            feedbackContainer.classList.remove('active');
+            document.getElementById(`${currentUserType}-subjects`).classList.remove('hidden');
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
